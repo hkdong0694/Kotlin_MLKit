@@ -1,6 +1,7 @@
 package com.example.mlkitsample
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,9 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -20,7 +24,6 @@ import java.util.concurrent.Executors
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
         private const val TAG = "CameraXBasic"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val CAMERA_PERMISSION_CODE = 0
     }
 
@@ -65,7 +68,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             // 카메라 권한 요구
             Toast.makeText(this@MainActivity, "카메라 권한이 요구됩니다.", Toast.LENGTH_SHORT).show()
             ActivityCompat.requestPermissions(
-                this,
+                this@MainActivity,
                 arrayOf(Manifest.permission.CAMERA),
                 CAMERA_PERMISSION_CODE
             )
@@ -89,7 +92,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         grantResults: IntArray
     ) {
         if (requestCode == CAMERA_PERMISSION_CODE) {
-            // 권한요청을 한 갯수가 1개이고, grantResult 결과가 GRANTED -> 허용일 경우 카메라를 켜준다.
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCamera()
                 camera_capture_button.visibility = View.VISIBLE
@@ -102,9 +104,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    @SuppressLint("UnsafeOptInUsageError")
     private fun startCamera() {
-
-        // CameraX 에서는 ViewFinder 가 촬영할 사진을 미리 볼 수 있는 역할을 한다. PreView Class 이용
 
         // ProcessCameraProvider
         // Camera 의 생명주기를 Activity 와 같은 LifeCycleOwner 의 생명주기에 Binding 시키는 것
@@ -122,35 +123,58 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 it.setSurfaceProvider(viewFinder.surfaceProvider)
             }
 
-            // 이미지 분석용
-            // 이미지 분석은 차단 비차단 모드 ( 2가지 기능이 있음 )
+            /**
+             * STREAM_MODE ( 기본 )
+             * 포즈 감지기는 먼저 이미지에서 가장 눈에 띄는 사람을 감지 한 다음 포즈 감지를 실행한다.
+             * 가장 유력한 사람을 추적하고 각 추론에서 포즈를 반환하려고 시도 한다.
+             * 비디오 스트림에서 포즈를 감지하려면 이 모드를 사용하면 된다.
+             */
+            val option = PoseDetectorOptions.Builder()
+                .setDetectorMode(PoseDetectorOptions.STREAM_MODE).build()
+
+            /**
+             * SINGLE_IMAGE_MODE
+             * 포즈 감지기는 사람을 감지 한 다음 포즈 감지를 실행한다.
+             * 정적 이미지에서 포즈 감지를 사용하거나 추적이 필요하지 않은 경우 이 모드를 사용 한다.
+             */
+            // val option = AccuratePoseDetectorOptions.Builder()
+            //     .setDetectorMode(AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE).build()
+
+            val poseDetector = PoseDetection.getClient(option)
+
+            /**
+             * 정확도를 높게 하려면 -> 해상도를 낮추고, 초점도 중요하다!!
+             * 추출한 이미지에 그래픽을 오버레이 하는 경우 -> ML Kit 에서 결과를 가져온 다음 이미지를 렌더링하고
+             * 단일 단계로 오버레이 한다. ( 각 입력 프레임에 대해 한 번만 디스플레이 표면에 렌더링 된다. )
+             * SampleExample Class -> CameraSourcePreview, GraphicOverlay
+             */
+
             val imageAnalysis = ImageAnalysis.Builder()
+                // MLKit 를 사용할 경우 낮은 해상도에서 캡처를 고려해라!!
+                // MLKit 자세를 정확하게 감지하려면 256x256 픽셀이어야 한다. ( 해상도를 낮춰서 분석할 것! )
                 .setTargetResolution(Size(1280, 720))
-                /**
-                 * 1. ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST -> 비차단 모드 ( 이 모드에서 실행자는 analyze() 메서드가 호출되는 시점에 카메라에서 마지막으로 사용 가능한 프레임을 수신합니다. )
-                 *    analyze() 메서드의 현재 프레임 속도가 단일 프레임의 지연 시간보다 느린 경우 analyze()가
-                 *    다음번에 데이터를 수신할 때 카메라 파이프라인에서 사용 가능한 최신 프레임을 가져오도록 몇몇 프레임을 건너뛸 수 있습니다.
-                 * 2. ImageAnalysis.STRATEGY_BLOCK_PRODUCER -> 차단 모드 ( 카메라에서 전송되는 프레임을 순차적으로 가져온다 )
-                 *    이는 analyze() 메서드가 현재 프레임 속도에서 단일 프레임의 지연 시간보다 오래 걸리면 메서드가
-                 *    반환할 때까지 새 프레임이 파이프라인에 진입하지 못하게 차단되므로
-                 *    프레임이 더 이상 최신 상태가 아닐 수 있음을 뜻합니다.
-                 */
-                // .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+                // MLKit 를 사용할 경우 분석기가 사용 중일 때 더 많은 이미지가 생성되면 자동으로 삭제되고 대기열에 추가 되지 않음!!!
+                // 분석중 image.close() 함수가 호출 시 가장 최근 이미지를 다시 가져온다.
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
-            // 쉽게 정리하면
-            // STRATEGY_KEEP_ONLY_LATEST -> 이미지를 close 함으로써 가장 최신의 이미지를 가지고온다. ( 몇개 건너 뛸수도 있음 )
-            // STRATEGY_BLOCK_PRODUCER -> 이미지를 무조건 순차적으로 가져온다 ( 건너 뛰기 x )
-
-            // 제공되는 이미지 형식 ImageFormat.YUV_420_888
-            imageAnalysis.setAnalyzer(cameraExecutor, { image ->
+            imageAnalysis.setAnalyzer(cameraExecutor, { imageProxy ->
                 // 이미지 분석!! 시작
-                val rotationDegrees = image.imageInfo.rotationDegrees
-                Log.d("asd", "들어와!! $rotationDegrees")
+                val mediaImage = imageProxy.image
+                if( null != mediaImage ) {
+                    // MLKit 시작!!
+                    val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+                    val image = InputImage.fromMediaImage(mediaImage, rotationDegrees)
+                    var result = poseDetector.process(image)
+                        .addOnSuccessListener { results ->
 
+                        }
+                        .addOnFailureListener { e ->
+
+                        }
+                }
                 // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
-                image.close()
+                imageProxy.close()
             })
 
             // Select back camera as a default
