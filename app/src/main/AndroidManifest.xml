@@ -2,10 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mlkitsample">
 
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- 장치에 카메라가 있는지 확인한다. any -> 카메라 정면, 후면일수도 있으니 Any! -->
+    <!-- any 가 빠지면 후면 카메라는 제외된다!! -->
+    <uses-feature android:name="android.hardware.camera.any" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:usesCleartextTraffic="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MLKitSample">
