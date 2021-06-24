@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -152,7 +153,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val imageAnalysis = ImageAnalysis.Builder()
                 // MLKit 를 사용할 경우 낮은 해상도에서 캡처를 고려해라!!
                 // MLKit 자세를 정확하게 감지하려면 256x256 픽셀이어야 한다. ( 해상도를 낮춰서 분석할 것! )
-                .setTargetResolution(Size(1280, 720))
+                .setTargetResolution(Size(640, 480))
                 // MLKit 를 사용할 경우 분석기가 사용 중일 때 더 많은 이미지가 생성되면 자동으로 삭제되고 대기열에 추가 되지 않음!!!
                 // 분석중 image.close() 함수가 호출 시 가장 최근 이미지를 다시 가져온다.
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -165,16 +166,56 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     // MLKit 시작!!
                     val rotationDegrees = imageProxy.imageInfo.rotationDegrees
                     val image = InputImage.fromMediaImage(mediaImage, rotationDegrees)
-                    var result = poseDetector.process(image)
-                        .addOnSuccessListener { results ->
+                    poseDetector.process(image)
+                        .addOnSuccessListener { pose ->
+                            var allPoseLandmarks = pose.allPoseLandmarks
+                            val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
+                            val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
+                            val leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW)
+                            val rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)
+                            val leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST)
+                            val rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST)
+                            val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
+                            val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
+                            val leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE)
+                            val rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE)
+                            val leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE)
+                            val rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE)
+                            val leftPinky = pose.getPoseLandmark(PoseLandmark.LEFT_PINKY)
+                            val rightPinky = pose.getPoseLandmark(PoseLandmark.RIGHT_PINKY)
+                            val leftIndex = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX)
+                            val rightIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX)
+                            val leftThumb = pose.getPoseLandmark(PoseLandmark.LEFT_THUMB)
+                            val rightThumb = pose.getPoseLandmark(PoseLandmark.RIGHT_THUMB)
+                            val leftHeel = pose.getPoseLandmark(PoseLandmark.LEFT_HEEL)
+                            val rightHeel = pose.getPoseLandmark(PoseLandmark.RIGHT_HEEL)
+                            val leftFootIndex = pose.getPoseLandmark(PoseLandmark.LEFT_FOOT_INDEX)
+                            val rightFootIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_FOOT_INDEX)
+                            val nose = pose.getPoseLandmark(PoseLandmark.NOSE)
+                            val leftEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER)
+                            val leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE)
+                            val leftEyeOuter = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_OUTER)
+                            val rightEyeInner = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER)
+                            val rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE)
+                            val rightEyeOuter = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER)
+                            val leftEar = pose.getPoseLandmark(PoseLandmark.LEFT_EAR)
+                            val rightEar = pose.getPoseLandmark(PoseLandmark.RIGHT_EAR)
+                            val leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH)
+                            val rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH)
+                            if( leftShoulder != null ) {
+                                var position = leftShoulder.position
+                                if( null != position ) {
+                                    Log.d("asd", "성공! ${leftShoulder.position.x} : ${leftShoulder.position.y}")
+                                }
+                            }
 
                         }
                         .addOnFailureListener { e ->
-
+                            Log.d("asd", "${e.message}")
                         }
+                    // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
+                    imageProxy.close()
                 }
-                // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
-                imageProxy.close()
             })
 
             // Select back camera as a default
@@ -182,12 +223,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             // DEFAULT_FRONT_CAMERA -> 정면 카메라, DEFAULT_BACK_CAMERA -> 후면 카메라
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
-                // 생명주기에 binding 시키기
-                // Unbind use cases before rebinding
-                // Bind use cases to camera
                 cameraProvider.unbindAll()
-                // Preview Binding!!
-                // cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis)
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
