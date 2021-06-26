@@ -205,16 +205,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             if( leftShoulder != null ) {
                                 var position = leftShoulder.position
                                 if( null != position ) {
-                                    Log.d("asd", "성공! ${leftShoulder.position.x} : ${leftShoulder.position.y}")
+
                                 }
                             }
-
+                            // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
+                            Log.d("asd", "성공! ")
+                            imageProxy.close()
                         }
                         .addOnFailureListener { e ->
-                            Log.d("asd", "${e.message}")
+                            // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
+                            imageProxy.close()
                         }
-                    // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
-                    imageProxy.close()
                 }
             })
 
