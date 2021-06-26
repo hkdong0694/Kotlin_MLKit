@@ -173,83 +173,47 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                                 Log.d("asd", "사람 없음 ")
                                 imageProxy.close()
                             } else {
+                                /**
+                                 *
+                                PoseLandmark.NOSE = 0;                      // 코
+                                PoseLandmark.LEFT_EYE_INNER = 1;            // 왼쪽 눈 안
+                                PoseLandmark.LEFT_EYE = 2;                  // 왼쪽 눈
+                                PoseLandmark.LEFT_EYE_OUTER = 3;            // 왼쪽 눈 바깥
+                                PoseLandmark.RIGHT_EYE_INNER = 4;           // 오른쪽 눈 안
+                                PoseLandmark.RIGHT_EYE = 5;                 // 오른쪽 눈
+                                PoseLandmark.RIGHT_EYE_OUTER = 6;           // 오른쪽 눈 바깥
+                                PoseLandmark.LEFT_EAR = 7;                  // 왼쪽 귀
+                                PoseLandmark.RIGHT_EAR = 8;                 // 오른쪽 귀
+                                PoseLandmark.LEFT_MOUTH = 9;                // 왼쪽 입
+                                PoseLandmark.RIGHT_MOUTH = 10;              // 오른쪽 입
+                                PoseLandmark.LEFT_SHOULDER = 11;            // 왼쪽 어깨
+                                PoseLandmark.RIGHT_SHOULDER = 12;           // 오른쪽 어깨
+                                PoseLandmark.LEFT_ELBOW = 13;               // 왼쪽 팔꿈치
+                                PoseLandmark.RIGHT_ELBOW = 14;              // 오른쪽 팔꿈치
+                                PoseLandmark.LEFT_WRIST = 15;               // 왼쪽 손목
+                                PoseLandmark.RIGHT_WRIST = 16;              // 오른쪽 손목
+                                PoseLandmark.LEFT_PINKY = 17;               // 왼쪽 새끼 손가락
+                                PoseLandmark.RIGHT_PINKY = 18;              // 오른쪽 새끼 손가락
+                                PoseLandmark.LEFT_INDEX = 19;               // 왼쪽 검지 손가락
+                                PoseLandmark.RIGHT_INDEX = 20;              // 오른쪽 검지 손가락
+                                PoseLandmark.LEFT_THUMB = 21;               // 왼쪽 엄지 손가락
+                                PoseLandmark.RIGHT_THUMB = 22;              // 오른쪽 엄지 손가락
+                                PoseLandmark.LEFT_HIP = 23;                 // 왼쪽 엉덩이
+                                PoseLandmark.RIGHT_HIP = 24;                // 오른쪽 엉덩이
+                                PoseLandmark.LEFT_KNEE = 25;                // 왼쪽 무릎
+                                PoseLandmark.RIGHT_KNEE = 26;               // 오른쪽 무릎
+                                PoseLandmark.LEFT_ANKLE = 27;               // 왼쪽 발목
+                                PoseLandmark.RIGHT_ANKLE = 28;              // 오른쪽 발목
+                                PoseLandmark.LEFT_HEEL = 29;                // 왼쪽 뒤꿈치
+                                PoseLandmark.RIGHT_HEEL = 30;               // 오른쪽 뒤꿈치
+                                PoseLandmark.LEFT_FOOT_INDEX = 31;          // 왼쪽 검지 발가락
+                                PoseLandmark.RIGHT_FOOT_INDEX = 32;         // 오른쪽 검지 발가락
+                                 */
                                 tv_acc.text = "정확도 : ${allPoseLandmarks[PoseLandmark.NOSE].inFrameLikelihood}"
                                 Log.d("asd", "캐치 성공! ${allPoseLandmarks[PoseLandmark.NOSE].landmarkType} : ${allPoseLandmarks[PoseLandmark.NOSE].inFrameLikelihood} ")
+                                // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
                                 imageProxy.close()
                             }
-                            // // 왼쪽 어깨
-                            // val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
-                            // // 오른쪽 어깨
-                            // val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
-                            // // 왼쪽 팔꿈치
-                            // val leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW)
-                            // // 오른쪽 팔꿈치
-                            // val rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)
-                            // // 왼쪽 손목
-                            // val leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST)
-                            // // 오른쪽 손목
-                            // val rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST)
-                            // // 왼쪽 엉덩이
-                            // val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
-                            // // 오른쪽 엉덩이
-                            // val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
-                            // // 왼쪽 무릎
-                            // val leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE)
-                            // // 오른쪽 무릎
-                            // val rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE)
-                            // // 왼쪽 발목
-                            // val leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE)
-                            // // 오른쪽 발목
-                            // val rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE)
-                            // // 왼쪽 새끼 손가락
-                            // val leftPinky = pose.getPoseLandmark(PoseLandmark.LEFT_PINKY)
-                            // // 오른쪽 새끼 손가락
-                            // val rightPinky = pose.getPoseLandmark(PoseLandmark.RIGHT_PINKY)
-                            // // 왼쪽 검지 손가락
-                            // val leftIndex = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX)
-                            // // 오른쪽 검지 손가락
-                            // val rightIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX)
-                            // // 왼쪽 엄지 손가락
-                            // val leftThumb = pose.getPoseLandmark(PoseLandmark.LEFT_THUMB)
-                            // // 오른쪽 엄지 손가락
-                            // val rightThumb = pose.getPoseLandmark(PoseLandmark.RIGHT_THUMB)
-                            // // 왼쪽 뒤꿈치
-                            // val leftHeel = pose.getPoseLandmark(PoseLandmark.LEFT_HEEL)
-                            // // 오른쪽 뒤꿈치
-                            // val rightHeel = pose.getPoseLandmark(PoseLandmark.RIGHT_HEEL)
-                            // // 왼쪽 검지 발가락
-                            // val leftFootIndex = pose.getPoseLandmark(PoseLandmark.LEFT_FOOT_INDEX)
-                            // // 오른쪽 검지 발가락
-                            // val rightFootIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_FOOT_INDEX)
-                            // // 코
-                            // val nose = pose.getPoseLandmark(PoseLandmark.NOSE)
-                            // // 왼쪽 눈 안
-                            // val leftEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER)
-                            // // 왼쪽 눈
-                            // val leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE)
-                            // // 왼쪽 눈 바깥
-                            // val leftEyeOuter = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_OUTER)
-                            // // 오른쪽 눈 안
-                            // val rightEyeInner = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER)
-                            // // 오른쪽 눈
-                            // val rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE)
-                            // // 오른쪽 눈 바깥
-                            // val rightEyeOuter = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER)
-                            // // 왼쪽 귀
-                            // val leftEar = pose.getPoseLandmark(PoseLandmark.LEFT_EAR)
-                            // // 오른쪽 귀
-                            // val rightEar = pose.getPoseLandmark(PoseLandmark.RIGHT_EAR)
-                            // // 왼쪽 입
-                            // val leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH)
-                            // // 오른쪽 입
-                            // val rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH)
-                            // tv_acc.text = "정확도 : ${leftShoulder.inFrameLikelihood}"
-                            // if( leftShoulder != null ) {
-                            //     var position = leftShoulder.position
-                            //     if( null != position ) {
-                            //     }
-                            // }
-                            // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
                         }
                         .addOnFailureListener { e ->
                             // 이걸 안쓰면 화면 멈춤! ( 이미지를 닫아 줘야 다음 프레임을 가져오기때문에 꼭 해줘야함! )
